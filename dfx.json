@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "canisters": {
+    "icp_bitcoin_integration_backend": {
+      "type": "motoko",
+      "main": "src/icp_bitcoin_integration_backend/main.mo"
+    },
+    "icp_bitcoin_integration_frontend": {
+      "type": "assets",
+      "source": [
+        "src/icp_bitcoin_integration_frontend/assets"
+      ],
+      "dependencies": [
+        "icp_bitcoin_integration_backend"
+      ]
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": "",
+      "args": ""
+    }
+  },
+  "output_env_file": ".env"
+}
