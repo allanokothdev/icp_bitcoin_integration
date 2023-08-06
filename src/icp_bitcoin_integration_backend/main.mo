@@ -2,8 +2,13 @@ import Time "mo:base/Time";
 import Result "mo:base/Result";
 import Int "mo:base/Int";
 import CkBtcLedger "canister:ckbtc_ledger";
+import Types "types";
+import { createInvoice; toAccount; toSubaccount } "utils"; 
+import Principal "mo:base/Principal";
+import Error "mo:base/Error";
 
-actor {
+
+actor FortuneCookie {
 
   let cookies = [
     "A journey of a thousand miles begins with a single step.",
@@ -62,7 +67,46 @@ actor {
     return "Hello, " # name # "!";
   };
 
-  public func getCookie() : async Result.Result<Text, Text> {
+  public shared ({ caller }) func getCookie() : async Result.Result<Text, Text> {
+    // check ckBTC balance of the callers dedicated account
+    let balance = await CkBtcLedger.icrc1_balance_of(
+      toAccount({ caller; canister = Principal.fromActor(FortuneCookie) })
+    );
+
+    if (balance < 100) {
+      return #err("Not enough funds available in the Account. Make sure you send at least 100 ckSats.");
+    };
+
+    try {
+      // if enough funds were sent, move them to the canisters default account
+      let transferResult = await CkBtcLedger.icrc1_transfer(
+        {
+          amount = balance - 10;
+          from_subaccount = ?toSubaccount(caller);
+          created_at_time = null;
+          fee = ?10;
+          memo = null;
+          to = {
+            owner = Principal.fromActor(FortuneCookie);
+            subaccount = null;
+          };
+        }
+      );
+
+      switch (transferResult) {
+        case (#Err(transferError)) {
+          return #err("Couldn't transfer funds to default account:\n" # debug_show (transferError));
+        };
+        case (_) {};
+      };
+    } catch (error : Error) {
+      return #err("Reject message: " # Error.message(error));
+    };
+
     return #ok("🥠: " # cookies[Int.abs(Time.now() / 1000 % 50)]);
-  }
+  };
+
+  public shared ({ caller }) func getInvoice() : async Types.Invoice {
+    createInvoice(toAccount({ caller; canister = Principal.fromActor(FortuneCookie) }), 100);
+  };
 };
