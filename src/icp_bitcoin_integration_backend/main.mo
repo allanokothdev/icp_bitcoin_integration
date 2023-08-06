@@ -1,6 +1,8 @@
 import Time "mo:base/Time";
 import Result "mo:base/Result";
 import Int "mo:base/Int";
+import CkBtcLedger "canister:ckbtc_ledger";
+
 actor {
 
   let cookies = [
