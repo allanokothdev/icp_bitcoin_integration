@@ -3,12 +3,27 @@
   "canisters": {
     "icp_bitcoin_integration_backend": {
       "type": "motoko",
-      "main": "src/icp_bitcoin_integration_backend/main.mo"
+      "main": "src/icp_bitcoin_integration_backend/main.mo",
+      "dependencies": [
+        "ckbtc_ledger"
+      ]
+    },
+     "ckbtc_ledger" : {
+      "type" : "custom",
+      "candid" : "icrc1.public.did",
+      "wasm" : "icrc1.wasm",
+      "remote": {
+        "candid": "icrc1.public.did",
+        "id": {
+          "ic" : "mxzaz-hqaaa-aaaar-qaada-cai"
+        }
+      }
     },
     "icp_bitcoin_integration_frontend": {
       "type": "assets",
       "source": [
-        "src/icp_bitcoin_integration_frontend/assets"
+        "src/icp_bitcoin_integration_frontend/assets",
+        "dist/icp_bitcoin_integration_frontend/"
       ],
       "dependencies": [
         "icp_bitcoin_integration_backend"
